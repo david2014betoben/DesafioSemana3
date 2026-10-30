@@ -16,7 +16,13 @@ export const perfilService = {
   // - no poner el Content-Type a mano, axios lo arma solo con FormData
   // - en services/upload.ts hay un ejemplo con un solo campo
   actualizar: async (nombre: string, foto?: File): Promise<UserProfile> => {
-    console.warn("TODO [B]: perfilService.actualizar", nombre, foto);
-    throw new Error("perfilService.actualizar todavía no está implementado");
+    const formData = new FormData();
+    formData.append("name", nombre);
+    if (foto) {
+      formData.append("foto", foto);
+    }
+
+    const response = await api.put<UserProfile>("/auth/perfil", formData);
+    return response.data;
   },
 };
