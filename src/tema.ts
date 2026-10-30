@@ -7,18 +7,22 @@ export interface Categoria {
 }
 
 export const tema = {
-  nombre: "mercado",
-  inicial: "M",
-  emoji: "🛒",
+  nombre: "Panaderia",
+  inicial: "P",
+  emoji: "🥐",
   login: {
-    kicker: "Tu tienda, más simple",
-    titulo: "Compra lo que te hace bien.",
-    texto:
-      "Encuentra productos seleccionados para tu día a día y disfruta una experiencia de compra sencilla.",
+    kicker: "Del horno a tu mesa",
+    titulo: "El sabor de lo recien hecho",
+    texto: "Panes, masas y delicias artesanales para compartir cada día.",
   },
   // categorias de su tienda, con el prefijo del grupo. ejemplo:
   // { valor: "Ropa-Polos", etiqueta: "Polos" },
-  categorias: [] as Categoria[],
+  categorias: [
+    { valor: "Pan-Artesanal", etiqueta: "Pan artesanal" },
+    { valor: "Pan-Integral", etiqueta: "Pan integral" },
+    { valor: "Pan-Dulce", etiqueta: "Pan dulce" },
+    { valor: "Pan-Salado", etiqueta: "Pan salado" },
+  ] as Categoria[],
 };
 
 export function etiquetaCategoria(valor: string) {

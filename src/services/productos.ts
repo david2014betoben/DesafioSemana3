@@ -1,4 +1,5 @@
 import { api } from "../lib/axios";
+import { tema } from "../tema";
 import type {
   CrearProductoDTO,
   PaginaProductos,
@@ -25,6 +26,21 @@ const convertirProducto = (producto: ProductoApi): Producto => ({
   imagenUrl: producto.image_url,
 });
 
+async function consultarCategoria(
+  categoria: string,
+  skip: number,
+  limit: number,
+): Promise<Producto[]> {
+  const respuesta = await api.get<ProductoApi[]>("/products/", {
+    params: {
+      skip,
+      limit,
+      category: categoria,
+    },
+  });
+
+  return respuesta.data.map(convertirProducto);
+}
 export const productosService = {
   getTodos: async (): Promise<Producto[]> => {
     const respuesta = await api.get<ProductoApi[]>("/products/", {
@@ -43,16 +59,77 @@ export const productosService = {
     porPagina: number,
     categoria: string,
   ): Promise<PaginaProductos> => {
-    console.warn("TODO [C]: getPagina", pagina, porPagina);
-    const respuesta = await api.get<ProductoApi[]>("/products/", {
-      params: categoria !== "Todas" ? { category: categoria } : {},
-    });
+    if (!Number.isSafeInteger(pagina) || pagina < 1) {
+      throw new Error("Número de página inválido");
+    }
+
+    if (!Number.isSafeInteger(porPagina) || porPagina < 1) {
+      throw new Error("Cantidad de productos inválida");
+    }
+
+    const categoriasPermitidas = tema.categorias.map((cat) => cat.valor);
+
+    const skip = (pagina - 1) * porPagina;
+    const limit = porPagina + 1;
+
+    // CASO 1: el usuario seleccionó una categoría.
+    if (categoria !== "Todas") {
+      if (!categoriasPermitidas.includes(categoria)) {
+        return {
+          productos: [],
+          hayMas: false,
+        };
+      }
+
+      const productos = await consultarCategoria(categoria, skip, limit);
+
+      return {
+        productos: productos.slice(0, porPagina),
+        hayMas: productos.length > porPagina,
+      };
+    }
+
+    // CASO 2: el usuario seleccionó "Todas".
+    // Solo debemos consultar categorías de panadería.
+    if (categoriasPermitidas.length === 0) {
+      return {
+        productos: [],
+        hayMas: false,
+      };
+    }
+
+    // La API solo permite filtrar una categoría
+    // exacta por petición. Consultamos las nuestras.
+    const hasta = pagina * porPagina + 1;
+
+    const lotes = await Promise.all(
+      categoriasPermitidas.map((valor) => consultarCategoria(valor, 0, hasta)),
+    );
+
+    const productosTienda: Producto[] = [];
+
+    // Intercalamos los productos de cada categoría.
+    // Así mantenemos un orden estable entre páginas.
+    const maxLongitud = Math.max(...lotes.map((lote) => lote.length));
+
+    for (let indice = 0; indice < maxLongitud; indice++) {
+      for (const lote of lotes) {
+        if (indice < lote.length) {
+          productosTienda.push(lote[indice]);
+        }
+      }
+    }
+
+    // Extraemos únicamente la página solicitada.
+    const ventana = productosTienda.slice(skip, skip + limit);
+
     return {
-      productos: respuesta.data.map(convertirProducto),
-      hayMas: false,
+      productos: ventana.slice(0, porPagina),
+      hayMas: ventana.length > porPagina,
     };
   },
 
+  // Mantenemos la funcionalidad para crear productos.
   crear: async (datos: CrearProductoDTO): Promise<Producto> => {
     const respuesta = await api.post<ProductoApi>("/products/", {
       name: datos.nombre,
@@ -62,6 +139,7 @@ export const productosService = {
       description: datos.descripcion || null,
       image_url: datos.imagenUrl || null,
     });
+
     return convertirProducto(respuesta.data);
   },
 };
