@@ -34,7 +34,9 @@ export function Layout() {
             <span className="grid size-9 place-items-center rounded-xl bg-marca-600 font-bold text-white">
               {tema.inicial}
             </span>
-            <span className="text-lg font-bold tracking-tight">{tema.nombre}</span>
+            <span className="text-lg font-bold tracking-tight">
+              {tema.nombre}
+            </span>
           </div>
 
           <nav className="flex flex-wrap gap-1 text-sm font-semibold">
@@ -55,7 +57,7 @@ export function Layout() {
             ))}
           </nav>
 
-          <div className="flex items-center gap-3 text-sm font-semibold">
+          <div className="flex items-center gap-3 text-sm font-semibold ">
             {usuarioAvatar ? (
               <img
                 src={usuarioAvatar}
