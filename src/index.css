@@ -4,18 +4,18 @@
    paletas: https://uicolors.app  fuentes: https://fonts.google.com */
 
 @theme {
-  --font-marca: "DM Sans", "Segoe UI", sans-serif;
+  --font-marca: "Segoe UI", Arial, sans-serif;
 
-  --color-marca-50: #ecfdf5;
-  --color-marca-100: #d1fae5;
-  --color-marca-200: #a7f3d0;
-  --color-marca-300: #6ee7b7;
-  --color-marca-400: #34d399;
-  --color-marca-500: #10b981;
-  --color-marca-600: #059669;
-  --color-marca-700: #047857;
-  --color-marca-800: #065f46;
-  --color-marca-900: #064e3b;
+  --color-marca-50: #fff7ec;
+  --color-marca-100: #feead5;
+  --color-marca-200: #f9d8b5;
+  --color-marca-300: #f5bc87;
+  --color-marca-400: #eea261;
+  --color-marca-500: #d87638;
+  --color-marca-600: #a64b20;
+  --color-marca-700: #823919;
+  --color-marca-800: #632b17;
+  --color-marca-900: #45200f;
 }
 
 :root {
