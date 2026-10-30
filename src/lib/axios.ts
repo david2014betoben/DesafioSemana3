@@ -16,10 +16,25 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// TODO [A]: interceptor de respuesta
-// - si la API responde 401 el token ya no sirve: hacer logout()
-//   y mandar al usuario a /login?sesion=expirada (aqui no hay useNavigate)
-// - el login tambien responde 401 cuando la contraseña esta mal,
-//   en ese caso no hay que redirigir (revisar error.config?.url)
-// - siempre terminar con return Promise.reject(error)
-// para probarlo: cambiar el token en localStorage y recargar /dashboard
+// Un 401 del login significa credenciales incorrectas, no sesión expirada.
+let redirigiendo = false;
+
+api.interceptors.response.use(
+  (respuesta) => respuesta,
+  (error: unknown) => {
+    if (axios.isAxiosError(error) && error.response?.status === 401) {
+      const ruta = new URL(
+        error.config?.url ?? "",
+        api.defaults.baseURL,
+      ).pathname.replace(/\/+$/, "");
+
+      if (ruta !== "/auth/login" && !redirigiendo) {
+        redirigiendo = true;
+        useAuthStore.getState().logout();
+        window.location.replace("/login?sesion=expirada");
+      }
+    }
+
+    return Promise.reject(error);
+  },
+);

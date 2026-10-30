@@ -1,6 +1,19 @@
-import { Outlet } from "react-router-dom";
+import { Navigate, Outlet } from "react-router-dom";
+import { useAuthHidratado } from "../hooks/useAuthHidratado";
+import { useAuthStore } from "../store/useAuthStore";
 
-// TODO [A]: si ya hay sesion y entra a /login, mandarlo a /dashboard
 export function RutaPublica() {
+  const hidratado = useAuthHidratado();
+  const autenticado = useAuthStore((s) => s.autenticado);
+  const token = useAuthStore((s) => s.token);
+
+  if (!hidratado) {
+    return <p role="status" className="p-6 text-center">Restaurando sesión...</p>;
+  }
+
+  if (autenticado && token) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
   return <Outlet />;
 }

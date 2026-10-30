@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { loginSchema, type LoginFormData } from "../schemas/loginSchema";
 import { authService } from "../services/auth";
 import { useAuthStore } from "../store/useAuthStore";
@@ -17,9 +17,10 @@ function StoreMark() {
   );
 }
 
-// TODO [A]: si la url trae ?sesion=expirada mostrar un aviso
 export function LoginPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const sesionExpirada = searchParams.get("sesion") === "expirada";
   const loginStore = useAuthStore((s) => s.login);
   const [errorServidor, setErrorServidor] = useState("");
   const {
@@ -90,6 +91,12 @@ export function LoginPage() {
                   Accede a tu cuenta para ver tus pedidos y favoritos.
                 </p>
               </div>
+
+              {sesionExpirada && (
+                <div role="status" className="mb-4 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
+                  Tu sesión expiró. Inicia sesión nuevamente para continuar.
+                </div>
+              )}
 
               {errorServidor && (
                 <div className="mb-4 rounded-xl bg-rose-50 p-3 text-sm text-rose-600 border border-rose-200">
